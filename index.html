@@ -249,8 +249,12 @@
   .upload-box { background: var(--card); border-radius: 12px; width: 100%; max-width: 440px; box-shadow: 0 24px 64px rgba(20,30,50,0.25); }
   .upload-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .upload-body { padding: 24px; }
-  .pw-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 14px; font-size: 13px; outline: none; margin-bottom: 8px; box-sizing: border-box; }
+  .pw-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 38px 10px 14px; font-size: 13px; outline: none; margin-bottom: 8px; box-sizing: border-box; }
   .pw-input.err { border-color: var(--red); }
+  .pw-input-wrap { position: relative; }
+  .pw-input-wrap .pw-input { margin-bottom: 8px; }
+  .pw-eye-toggle { position: absolute; right: 10px; top: 10px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text3); background: none; border: none; padding: 0; font-size: 15px; user-select: none; }
+  .pw-eye-toggle:hover { color: var(--text2); }
   .btn-primary { width: 100%; background: var(--blue); color: #fff; border: none; border-radius: 7px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
   .upload-status { margin-top: 14px; font-size: 12.5px; padding: 10px 14px; border-radius: 7px; }
   .upload-status.success { background: #E7F6EE; color: var(--green); }
@@ -378,14 +382,14 @@
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   // ◀── PASTE YOUR FIREBASE CONFIG HERE ──▶
-const firebaseConfig = {
-  apiKey: "AIzaSyCWGybClhNDMK6_id5UrzhOH6MmY6o2nJ0",
-  authDomain: "mashr-c3-usegdashboard.firebaseapp.com",
-  projectId: "mashr-c3-usegdashboard",
-  storageBucket: "mashr-c3-usegdashboard.firebasestorage.app",
-  messagingSenderId: "1022154791268",
-  appId: "1:1022154791268:web:63718dbb89f0582d910271"
-};
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
 
   let firebaseEnabled = false;
   try {
@@ -567,7 +571,7 @@ let LAST_UPDATED = null;
 // Parsed from sheet "USEG-Type": Row 3 = type names (col D onwards, index 3+)
 // Col D (index 3), row 4+ = attribute labels; data cells at row 4+, col E+
 // ════════════════════════════════════════════════════════════════════════
-let USEG_TYPES = [{"name":"Type-1","attrs":[{"label":"C4 Nomenclature","value":"Type-4"},{"label":"Main Beam","value":"2-UB610 x 229 x 125"},{"label":"Beam-2 / Top Beam","value":"2 -UB610 x 229 x 125"},{"label":"Beam-3 / Secondary Beam","value":"UB610 x 229 x 125"},{"label":"Trestle Column","value":"ISMC 200 Box"},{"label":"Trestle Bracings","value":"ISMC 75 Box"},{"label":"Trestle Dimension","value":"3m x 3m"},{"label":"Trestle Height","value":"1.5m , 1.0m, 0.5m"},{"label":"Footings","value":"1.750m x 1.750m x 0.5m for each leg"}]},{"name":"Type-3","attrs":[{"label":"C4 Nomenclature","value":"Type-1"},{"label":"Main Beam","value":"Box 2.4m x 16mm_1.1m x 20mm"},{"label":"Beam-2 / Top Beam","value":"2-UB610 x 229 x 125"},{"label":"Beam-3 / Secondary Beam","value":"2-UB610 x 229 x 125"},{"label":"Trestle Column","value":"ISMC 400 Box with 6mm plate"},{"label":"Trestle Bracings","value":"ISA 75x75x10 B/B"},{"label":"Trestle Dimension","value":"2.5m x 2.0m"},{"label":"Trestle Height","value":"2.5m"},{"label":"Footings","value":"3m x 6m x 0.65m for < 12m 6m x 6m x 0.65m for > 12m"}]},{"name":"Type-4 (SMD)","attrs":[{"label":"C4 Nomenclature","value":"Type-6"},{"label":"Main Beam","value":"2-ISMB600 with T+B 16mm plate"},{"label":"Beam-2 / Top Beam","value":"ISMB400"},{"label":"Beam-3 / Secondary Beam","value":"2-ISMB500"},{"label":"Trestle Column","value":"ISMC 200 Box"},{"label":"Trestle Bracings","value":"ISMC 75 Box"},{"label":"Trestle Dimension","value":"3m x 3m"},{"label":"Trestle Height","value":"3m"},{"label":"Footings","value":"4.5m x 2.5m x 0.4m for two legs"}]},{"name":"Type-5 / Hybrid-01","attrs":[{"label":"C4 Nomenclature","value":"Type-1 + Type-4"},{"label":"Main Beam","value":"2-UB610 x 229 x 125"},{"label":"Beam-2 / Top Beam","value":"2 -UB610 x 229 x 125"},{"label":"Beam-3 / Secondary Beam","value":"UB610 x 229 x 125"},{"label":"Trestle Column","value":"ISMC 400 Box with 6mm plate"},{"label":"Trestle Bracings","value":"ISA 75x75x10 B/B"},{"label":"Trestle Dimension","value":"2.5m x 2.0m"},{"label":"Trestle Height","value":"2.5m"},{"label":"Footings","value":"3m x 6m x 0.65m"}]},{"name":"Type-6 / Hybrid-02","attrs":[{"label":"C4 Nomenclature","value":"Type-2 + Type-4"},{"label":"Main Beam","value":"2-UB610 x 229 x 125"},{"label":"Beam-2 / Top Beam","value":"2 -UB610 x 229 x 125"},{"label":"Beam-3 / Secondary Beam","value":"UB610 x 229 x 125"},{"label":"Trestle Column","value":"ISMC 300 Box"},{"label":"Trestle Bracings","value":"ISA 75x75x10"},{"label":"Trestle Dimension","value":"2.5m x 2.0m"},{"label":"Trestle Height","value":"1.5m , 2.5m"},{"label":"Footings","value":"4m x 2.5m x 0.50m for two legs"}]},{"name":"Type-7","attrs":[{"label":"C4 Nomenclature","value":"Type-10"},{"label":"Main Beam","value":"2 - WPB900"},{"label":"Beam-2 / Top Beam","value":"2-UB610 x 229 x 125"},{"label":"Beam-3 / Secondary Beam","value":"2-UB610 x 229 x 125"},{"label":"Trestle Column","value":"ISMC 400 Box with 6mm plate"},{"label":"Trestle Bracings","value":"ISA 75x75x10 B/B"},{"label":"Trestle Dimension","value":"2.5m x 2.0m"},{"label":"Trestle Height","value":"2.5m"},{"label":"Footings","value":"5m x 2.4m x 0.55m for two legs 3m x 3.8m x 0.35m for four legs"}]},{"name":"Type-8","attrs":[{"label":"C4 Nomenclature","value":"Type-3"},{"label":"Main Beam","value":"2-1350x20_500x25"},{"label":"Beam-2 / Top Beam","value":"2Nos of 2-UB610"},{"label":"Beam-3 / Secondary Beam","value":"2-ISMB400"},{"label":"Trestle Column","value":"ISMC 400 Box with 6mm plate"},{"label":"Trestle Bracings","value":"ISA 75x75x10 B/B"},{"label":"Trestle Dimension","value":"2.5m x 2.0m"},{"label":"Trestle Height","value":"2.5m"},{"label":"Footings","value":"5m x 2.4m x 0.55m for two legs"}]},{"name":"Type-9 (SMD)","attrs":[{"label":"C4 Nomenclature","value":"Type-7"},{"label":"Main Beam","value":"2-UB610 x 229 x 125 with T+B 26mm plate"},{"label":"Beam-2 / Top Beam","value":"2-ISMB400"},{"label":"Beam-3 / Secondary Beam","value":"ISMB400"},{"label":"Trestle Column","value":"ISMC 75 BOX"},{"label":"Trestle Bracings","value":"ISA 65X65X10"},{"label":"Trestle Dimension","value":"1.2m x 1.2m"},{"label":"Trestle Height","value":"1.850m"},{"label":"Footings","value":"2.5m x 2.5m x 0.40m"}]},{"name":"Type-10 (SMD)","attrs":[{"label":"C4 Nomenclature","value":""},{"label":"Main Beam","value":"2-UB610 x 229 x 125 with T+B 26mm plate"},{"label":"Beam-2 / Top Beam","value":"2-ISMB400"},{"label":"Beam-3 / Secondary Beam","value":"ISMB400"},{"label":"Trestle Column","value":"ISMC 75 BOX"},{"label":"Trestle Bracings","value":"ISA 65X65X10"},{"label":"Trestle Dimension","value":"1.2m x 1.2m"},{"label":"Trestle Height","value":"1.850m"},{"label":"Footings","value":"2.5m x 2.5m x 0.40m"}]}];
+let USEG_TYPES = [{"name": "Type-1", "attrs": [{"label": "C4 Nomenclature", "value": "Type-4"}, {"label": "Main Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Beam-2 / Top Beam", "value": "2 -UB610 x 229 x 125"}, {"label": "Beam-3 / Secondary Beam", "value": "UB610 x 229 x 125"}, {"label": "Trestle Column", "value": "ISMC 200 Box"}, {"label": "Trestle Bracings", "value": "ISMC 75 Box"}, {"label": "Trestle Dimension", "value": "3m x 3m"}, {"label": "Trestle Height", "value": "1.5m , 1.0m, 0.5m"}, {"label": "Footings", "value": "1.750m x 1.750m x 0.5m for each leg"}, {"label": "Applicable Pier Height", "value": "16.0m"}]}, {"name": "Type-3", "attrs": [{"label": "C4 Nomenclature", "value": "Type-1"}, {"label": "Main Beam", "value": "Box 2.4m x 16mm_1.1m x 20mm"}, {"label": "Beam-2 / Top Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Beam-3 / Secondary Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Trestle Column", "value": "ISMC 400 Box with 6mm plate"}, {"label": "Trestle Bracings", "value": "ISA 75x75x10 B/B"}, {"label": "Trestle Dimension", "value": "2.5m x 2.0m"}, {"label": "Trestle Height", "value": "2.5m"}, {"label": "Footings", "value": "3m x 6m x 0.65m for < 12m 6m x 6m x 0.65m for > 12m"}, {"label": "Applicable Pier Height", "value": "19.0m"}]}, {"name": "Type-4 (SMD)", "attrs": [{"label": "C4 Nomenclature", "value": "Type-6"}, {"label": "Main Beam", "value": "2-ISMB600 with T+B 16mm plate"}, {"label": "Beam-2 / Top Beam", "value": "ISMB400"}, {"label": "Beam-3 / Secondary Beam", "value": "2-ISMB500"}, {"label": "Trestle Column", "value": "ISMC 200 Box"}, {"label": "Trestle Bracings", "value": "ISMC 75 Box"}, {"label": "Trestle Dimension", "value": "3m x 3m"}, {"label": "Trestle Height", "value": "3m"}, {"label": "Footings", "value": "4.5m x 2.5m x 0.4m for two legs"}, {"label": "Applicable Pier Height", "value": "13.4m"}]}, {"name": "Type-5 / Hybrid-01", "attrs": [{"label": "C4 Nomenclature", "value": "Type-1 + Type-4"}, {"label": "Main Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Beam-2 / Top Beam", "value": "2 -UB610 x 229 x 125"}, {"label": "Beam-3 / Secondary Beam", "value": "UB610 x 229 x 125"}, {"label": "Trestle Column", "value": "ISMC 400 Box with 6mm plate"}, {"label": "Trestle Bracings", "value": "ISA 75x75x10 B/B"}, {"label": "Trestle Dimension", "value": "2.5m x 2.0m"}, {"label": "Trestle Height", "value": "2.5m"}, {"label": "Footings", "value": "3m x 6m x 0.65m"}, {"label": "Applicable Pier Height", "value": "22.0m"}]}, {"name": "Type-6 / Hybrid-02", "attrs": [{"label": "C4 Nomenclature", "value": "Type-2 + Type-4"}, {"label": "Main Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Beam-2 / Top Beam", "value": "2 -UB610 x 229 x 125"}, {"label": "Beam-3 / Secondary Beam", "value": "UB610 x 229 x 125"}, {"label": "Trestle Column", "value": "ISMC 300 Box"}, {"label": "Trestle Bracings", "value": "ISA 75x75x10"}, {"label": "Trestle Dimension", "value": "2.5m x 2.0m"}, {"label": "Trestle Height", "value": "1.5m , 2.5m"}, {"label": "Footings", "value": "4m x 2.5m x 0.50m for two legs"}, {"label": "Applicable Pier Height", "value": "15.0m"}]}, {"name": "Type-7", "attrs": [{"label": "C4 Nomenclature", "value": "Type-10"}, {"label": "Main Beam", "value": "2 - WPB900"}, {"label": "Beam-2 / Top Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Beam-3 / Secondary Beam", "value": "2-UB610 x 229 x 125"}, {"label": "Trestle Column", "value": "ISMC 400 Box with 6mm plate"}, {"label": "Trestle Bracings", "value": "ISA 75x75x10 B/B"}, {"label": "Trestle Dimension", "value": "2.5m x 2.0m"}, {"label": "Trestle Height", "value": "2.5m"}, {"label": "Footings", "value": "5m x 2.4m x 0.55m for two legs 3m x 3.8m x 0.35m for four legs"}, {"label": "Applicable Pier Height", "value": "15.0 m"}]}, {"name": "Type-8", "attrs": [{"label": "C4 Nomenclature", "value": "Type-3"}, {"label": "Main Beam", "value": "2-1350x20_500x25"}, {"label": "Beam-2 / Top Beam", "value": "2Nos of 2-UB610"}, {"label": "Beam-3 / Secondary Beam", "value": "2-ISMB400"}, {"label": "Trestle Column", "value": "ISMC 400 Box with 6mm plate"}, {"label": "Trestle Bracings", "value": "ISA 75x75x10 B/B"}, {"label": "Trestle Dimension", "value": "2.5m x 2.0m"}, {"label": "Trestle Height", "value": "2.5m"}, {"label": "Footings", "value": "5m x 2.4m x 0.55m for two legs"}, {"label": "Applicable Pier Height", "value": "21.625"}]}, {"name": "Type-9 (SMD)", "attrs": [{"label": "C4 Nomenclature", "value": "Type-7"}, {"label": "Main Beam", "value": "2-UB610 x 229 x 125 with T+B 26mm plate"}, {"label": "Beam-2 / Top Beam", "value": "2-ISMB400"}, {"label": "Beam-3 / Secondary Beam", "value": "ISMB400"}, {"label": "Trestle Column", "value": "ISMC 75 BOX"}, {"label": "Trestle Bracings", "value": "ISA 65X65X10"}, {"label": "Trestle Dimension", "value": "1.2m x 1.2m"}, {"label": "Trestle Height", "value": "1.850m"}, {"label": "Footings", "value": "2.5m x 2.5m x 0.40m"}, {"label": "Applicable Pier Height", "value": "8.50m"}]}, {"name": "Type-10 (SMD)", "attrs": [{"label": "C4 Nomenclature", "value": ""}, {"label": "Main Beam", "value": "2-UB610 x 229 x 125 with T+B 26mm plate"}, {"label": "Beam-2 / Top Beam", "value": "2-ISMB400"}, {"label": "Beam-3 / Secondary Beam", "value": "ISMB400"}, {"label": "Trestle Column", "value": "ISMC 75 BOX"}, {"label": "Trestle Bracings", "value": "ISA 65X65X10"}, {"label": "Trestle Dimension", "value": "1.2m x 1.2m"}, {"label": "Trestle Height", "value": "1.850m"}, {"label": "Footings", "value": "2.5m x 2.5m x 0.40m"}, {"label": "Applicable Pier Height", "value": ""}]}];
 let activeUsegType = null;
 
 function parseUsegTypeSheet(wb) {
@@ -1157,7 +1161,10 @@ function renderUploadBody(status) {
   if (!uploadUnlocked) {
     body.innerHTML = `
       <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Enter the admin password to upload a revised Excel file. Viewers without the password can only view the dashboard.</div>
-      <input type="password" class="pw-input" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPassword()">
+      <div class="pw-input-wrap">
+        <input type="password" class="pw-input" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPassword()">
+        <button type="button" class="pw-eye-toggle" onclick="togglePwVisibility('pwInput', this)" aria-label="Show password">👁</button>
+      </div>
       <div id="pwError" style="display:none;font-size:12px;color:var(--red);margin-bottom:10px;">Incorrect password.</div>
       <button class="btn-primary" onclick="checkPassword()">Unlock</button>
     `;
@@ -1170,6 +1177,15 @@ function renderUploadBody(status) {
     `;
   }
 }
+function togglePwVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  btn.textContent = showing ? '👁' : '🙈';
+  btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+}
+
 function checkPassword() {
   const val = document.getElementById('pwInput').value;
   if (val===UPLOAD_PASSWORD) { uploadUnlocked = true; renderUploadBody(); }
